@@ -1,12 +1,12 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.GITHUB_USERNAME/perspective-api-alternative",
+  "name": "io.github.koyourmoon/perspective-api-alternative",
   "title": "Perspective API Alternative (Toxicity Detection)",
   "description": "Toxicity scores (0-1) for text before an agent posts it. Perspective API compatible. No LLM.",
   "version": "1.0.9",
   "websiteUrl": "https://apify.com/koyourmoon/perspective-api-alternative",
   "repository": {
-    "url": "https://github.com/GITHUB_USERNAME/perspective-api-alternative-mcp",
+    "url": "https://github.com/koyourmoon/perspective-api-alternative-mcp",
     "source": "github"
   },
   "remotes": [
