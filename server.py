@@ -31,7 +31,7 @@ TOOLS = [
             "user-generated content, filter LLM output, or triage comments before an agent posts them. "
             "Pass up to 100 texts at once. Read-only: it does not store or publish text. Each call is "
             "billed to your Apify account ($0.50 for 1,000 text units). The first call after an idle "
-            "period can take 10 to 30 seconds. Non-English text returns an error."
+            "period can take 10 to 30 seconds. English only: non-English text gets a warning field."
         ),
         "inputSchema": {
             "type": "object",
