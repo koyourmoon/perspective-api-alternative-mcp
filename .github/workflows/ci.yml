@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Compile
+        run: python -m py_compile server.py
+      - name: MCP smoke test (no token)
+        run: |
+          printf '%s\n' \
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}' \
+            '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
+            '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' \
+            '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"analyze_toxicity","arguments":{"texts":["hi"]}}}' \
+            | env -u APIFY_TOKEN python server.py > out.jsonl
+          cat out.jsonl
+          python - <<'PY'
+          import json
+          lines = [json.loads(l) for l in open("out.jsonl")]
+          assert len(lines) == 3, lines
+          assert lines[0]["result"]["serverInfo"]["name"] == "perspective-api-alternative"
+          tools = lines[1]["result"]["tools"]
+          assert [t["name"] for t in tools] == ["analyze_toxicity"]
+          assert lines[2]["result"]["isError"] is True
+          assert "APIFY_TOKEN" in lines[2]["result"]["content"][0]["text"]
+          print("OK")
+          PY
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t perspective-api-alternative-mcp .
+      - name: Run tools/list in the container
+        run: |
+          echo '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' \
+            | docker run -i --rm perspective-api-alternative-mcp | grep -q analyze_toxicity
